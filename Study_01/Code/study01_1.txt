@@ -1,0 +1,81 @@
+# **************************************
+# R Study_01_Simple web crawling using R
+# 2017.03.16 Boo, Hyun-Kyung
+# brainaboo@kookmin.ac.kr
+# **************************************
+
+# Firstly we need to install package - Stringr
+# Install : install.packages(“Stringr”)
+# Execution: Iibrary(stringr)
+
+
+# 1. Find URL (Depends on you)
+# 종방한 내성적인 보스 갤러리 제목/날짜를 크롤링 해보자!
+# we will crawl every title/date in borad. (1 - 10 pages)
+# http://gall.dcinside.com/board/lists/?id=introvertboss&page=1
+
+pageNum = 1
+url = paste0('http://gall.dcinside.com/board/lists/?id=introvertboss&page=',pageNum)
+
+
+# paste (..., sep = " ", collapse = NULL)
+# paste0(..., collapse = NULL))
+# ex) paste0('count=',1) => count=1
+
+line=readLines(url,encoding="UTF-8")
+
+# readLines(con = stdin(), n = -1L, ok = TRUE, warn = TRUE,
+# encoding = "unknown", skipNul = FALSE) :
+# ex) readLines(url,encoding="UTF-8") => read url but encordinf format is UTF-8
+
+# we have to find some tag for extracting specific lines.
+# tag01 = title, tag02 = writer
+tag01 = str_detect(line, '<td class=\"t_subject\"')
+tag02 = str_detect(line, ' <td class=\"t_date\"')
+# str_detect(existed line)
+
+# line[] => return logical value(true, false) in line that we have already made
+title = line[tag01]
+date = line[tag02]
+# and save into variable title, date
+
+# 모든 문자 .*? 로 표시한다. 즉 <.*?> 는 꺽쇠안에 존재하는 모든 문자열을 뜻하고
+# gsub('<.*?>','',title)은 title에 존재하는 꺽쇠안의 모든 문자열을 공백으로 대체한다. 라는 의미
+
+title = gsub('<.*?>','',title)
+title = gsub('[[:punct:]|[:digit:]]','',title)
+#댓글수 지우고 싶다고 같이하면 안되요! 기호를 지우기 때문에 오류.
+#i choice 'backward deletion' because of blocking error.
+
+date = gsub('<.*?>','',date)
+# gsub('바꿀 문자','대체할 문자',where)
+# gsub(pattern, replacement, x)
+
+# str_trim(pattern)
+# =>pattern 안에 존재하는 모든 공백을 지움 / removing space in pattern using this function
+
+title = str_trim(title)
+date = str_trim(date)
+
+# [222] <-이 숫자를 지우고 싶다면 []와 숫자를 없애주어야 한다.
+# 참조 : http://www.endmemo.com/program/R/gsub.php - Regular Expression Syntax
+
+
+title
+date
+
+#create table using title and date!
+final_data = NULL
+temp = cbind(title, date)
+final_data = rbind(final_data, temp)
+final_data
+
+#set directory
+#setwd("~/R_resource")
+
+
+#save
+final_data = as.character(final_data)
+final_data = data.frame(final_data,stringsAsFactors = F)
+write.csv(final_data, 'demo_01.csv')
+write.table(final_data,'demo_01.txt')
