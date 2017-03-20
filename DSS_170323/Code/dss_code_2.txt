@@ -1,0 +1,47 @@
+# **************************************
+# 데이터 과학 세미나 소스코드 02_다중페이지
+# 2017.03.23 Boo, Hyun-Kyung
+# brainaboo@kookmin.ac.kr
+# 수정 후 배포 금지
+# **************************************
+
+
+# Install : install.packages(“Stringr”)
+# Execution: library(stringr)
+
+#1. 주제 및 URL 선정 => http://gall.dcinside.com/board/lists/?id=tree의 1-200페이지에 있는 게시글의 제목과 날짜를 수집한다.
+
+final_data = NULL
+
+for(pageNum in 1:10){
+
+  url = paste0('http://gall.dcinside.com/board/lists/?id=tree&page=',pageNum)
+  line = readLines(url, encoding = 'UTF-8')
+  
+  tag01 = str_detect(line, '<td class=\"t_subject\"')
+  tag02 = str_detect(line, ' <td class=\"t_date\"')
+  
+  title = line[tag01]
+  date = line[tag02]
+  
+  title = gsub('<.*?>','',title)
+  title = gsub('[[:punct:]|[:digit:]]','',title)
+  
+  date = gsub('<.*?>','',date)
+  
+  title = str_trim(title)
+  date = str_trim(date)
+  
+  temp = cbind(title, date)
+  final_data = rbind(final_data, temp)
+  
+  cat(pageNum,'page complete\n')
+  
+}
+  
+final_data = data.frame(final_data,stringsAsFactors = F)
+str(final_data) #str(var) : var 구조 확인 함수
+final_data
+
+write.csv(final_data, 'dss02.csv')
+write.table(final_data,'dss02.txt')

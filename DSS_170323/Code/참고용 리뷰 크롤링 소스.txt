@@ -1,0 +1,33 @@
+# **************************************
+# 참고용 리뷰 크롤링 소스
+# 2017.03.23 Boo, Hyun-Kyung
+# brainaboo@kookmin.ac.kr
+# 수정 후 배포 금지
+# **************************************
+
+
+# 리뷰 크롤링_네이버
+final_data=NULL
+
+for(i in 1:10)
+  {
+    url=paste0("http://movie.naver.com/movie/bi/mi/pointWriteFormList.nhn?code=134963&type=after&isActualPointWriteExecute=false&isMileageSubscriptionAlready=false&isMileageSubscriptionReject=false&page=",i)
+    line=readLines(url,encoding="UTF-8")
+  
+    inx=str_detect(line,"<div class=\"score_reple\">")  #\붙여서 R이 "를 문자로 인식하게 해줌
+    title=line[which(inx)+1]   
+    title=gsub('\t|<.*?>|BEST|관람객','',title)
+    title=str_trim(title)
+    title=gsub('&#|\\d+|;','',title)
+  
+    cat(i,'page complete\n')
+    final_data=cbind(final_data,title)
+  }
+
+final_data = as.character(final_data)
+final_data = data.frame(final_data,stringsAsFactors = F)
+write.csv(final_data, 'naver_review.csv')
+write.table(final_data,'naver_review.txt')
+
+
+# 다음 리뷰 크롤링은 각자 해보세요. XD

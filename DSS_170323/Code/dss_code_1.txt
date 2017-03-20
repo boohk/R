@@ -1,0 +1,47 @@
+# **************************************
+# 데이터 과학 세미나 소스코드 01_단일페이지
+# 2017.03.23 Boo, Hyun-Kyung
+# brainaboo@kookmin.ac.kr
+# 더 자세한 설명은 R -> Study_01 -> Code -> study01_1 참고하세요.
+# 수정 후 배포 금지
+# **************************************
+
+# Install : install.packages(“Stringr”)
+# Execution: library(stringr)
+library(stringr)
+#1. 주제 및 URL 선정 => http://gall.dcinside.com/board/lists/?id=tree의 첫번째 페이지의 게시글의 제목과 날짜를 수집한다.
+
+url = 'http://gall.dcinside.com/board/lists/?id=tree&page=1'
+
+
+#2. 문자열 추출
+line = readLines(url, encoding = 'UTF-8')
+tag01 = str_detect(line, '<td class=\"t_subject\"')
+tag02 = str_detect(line, ' <td class=\"t_date\"')
+
+title = line[tag01]
+date = line[tag02]
+
+title = gsub('<.*?>','',title)
+title = gsub('[[:punct:]|[:digit:]]','',title)
+
+date = gsub('<.*?>','',date)
+
+title = str_trim(title)
+date = str_trim(date)
+
+title
+date
+
+#3. 테이블 만들기
+temp = cbind(title, date)
+final_data = data.frame(temp,stringsAsFactors = F)
+str(final_data) #str(var) : var 구조 확인 함수
+final_data
+
+#setwd("~/Git repo/R/SourceCode_DSS_170323/Result") => setwd(디렉토리 위치) :  디렉토리 지정 함수
+
+#4. 저장
+write.csv(final_data, 'dss01.csv')
+write.table(final_data,'dss01.txt')
+
